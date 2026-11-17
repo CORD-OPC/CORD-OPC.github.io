@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>CORD-OPC · Curvilinear optical proximity correction</title>
+  <meta name="description" content="Explore full-chip resist contour comparisons and replay CORD-OPC mask corrections one iteration at a time.">
+  <link rel="stylesheet" href="style.css?v=highlights-metric-headlines">
+  <link rel="stylesheet" href="method-network.css?v=joint-attention">
+  <link rel="stylesheet" href="matched-results.css?v=soft-surfaces">
+  <script defer src="assets/rollout-data.js?v=epe-panel"></script>
+  <script defer src="assets/epe-sites.js"></script>
+  <script defer src="assets/benchmarks.js?v=cord-opc"></script>
+  <script defer src="site.js?v=all-size-rankings"></script>
+  <script defer src="print-comparisons.js?v=representative-cases"></script>
+  <script defer src="assets/method/init-geometry.js"></script>
+  <script defer src="method-initialization.js?v=fig3-method"></script>
+  <script defer src="assets/method/intensity-sweep.js?v=intensity-map"></script>
+  <script defer src="method-optical-coupling.js?v=intensity-map"></script>
+  <script defer src="replay.js?v=vertical-preview"></script>
+  <script defer src="home-comparison.js?v=mask-resist-loop"></script>
+  <script defer src="results-tabs.js?v=matched-baselines"></script>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+</head>
+<body id="home">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="wrap topbar-content">
+      <a class="wordmark" aria-label="CORD-OPC" href="#home"><span class="mark" aria-hidden="true"></span>CORD<span class="wordmark-suffix">-OPC</span></a>
+      <nav aria-label="Sections">
+        <a href="#home" aria-current="location">Home</a><a href="#highlights">Highlights</a><a href="#method">Method</a><a href="#rollout">Mask correction replay</a><a href="#layouts">Resist comparisons</a><a href="#benchmarks">Results</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title" data-site-section="home">
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <p class="kicker">AI for Manufacturability in EDA</p>
+          <h1 id="hero-title">Move the curves, <span>bring the resist closer to target.</span></h1>
+          <p class="hero-lead">CORD-OPC: Learning the Next Mask through Correction Dynamics in Parametric Curve Space</p>
+        </div>
+        <figure class="hero-film surface" id="hero-film">
+          <div class="hero-film-board">
+            <div class="hero-film-label">
+              <strong id="hero-method">CORD-OPC</strong>
+              <span>Mask and simulated resist</span>
+            </div>
+            <svg id="hero-film-contours" viewBox="0 0 350 350" role="img" aria-labelledby="hero-film-description">
+              <title id="hero-film-description">CORD-OPC Bézier mask updates and corresponding simulated resist over sixteen correction rounds. Green contours show simulated resist, blue curves show the mask, and dashed lines show the target.</title>
+              <defs>
+                <pattern id="hero-film-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <path d="M30 0H0V30" fill="none" stroke="#d8e4ec" stroke-width="1"/>
+                </pattern>
+                <clipPath id="hero-film-crop"><rect width="350" height="350"/></clipPath>
+              </defs>
+              <rect width="350" height="350" fill="url(#hero-film-grid)" aria-hidden="true"/>
+              <g clip-path="url(#hero-film-crop)">
+                <g id="hero-resist-contours">
+                  <path id="hero-resist-current" class="hero-resist" fill-rule="evenodd"/>
+                  <path id="hero-resist-next" class="hero-resist" fill-rule="evenodd"/>
+                </g>
+                <path id="hero-target-outline" fill-rule="evenodd"/>
+                <path id="hero-mask-curve" fill="none"/>
+                <g id="hero-anchor-points" aria-hidden="true"></g>
+              </g>
+              <g class="hero-film-scale" aria-hidden="true">
+                <path d="M276 332v6m0-3h50m0-3v6" fill="none"/>
+                <text x="301" y="326" text-anchor="middle">50 nm</text>
+              </g>
+            </svg>
+          </div>
+          <figcaption class="hero-film-caption">
+            <span class="hero-film-legend" title="Mask positions interpolate between archived iterations. Simulated resist contours crossfade between archived results."><span><i class="key-line dashed" aria-hidden="true"></i>Target</span><span><i class="key-line blue" aria-hidden="true"></i>Mask</span><span><i class="key-line hero-resist-key" aria-hidden="true"></i>Simulated resist</span></span>
+            <span id="hero-iteration" class="mono" title="2 µm case · 350 nm crop"></span>
+            <button type="button" class="hero-motion" id="hero-motion" hidden>Pause loop</button>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="highlights" class="section highlights-section" aria-labelledby="highlights-title" data-site-section="highlights">
+      <div class="wrap">
+        <div class="highlights-head">
+          <p class="kicker">Results at a glance</p>
+          <h2 id="highlights-title">Leading at every size.</h2>
+          <p class="highlights-subtitle">2 µm · 30 µm · 150 µm<br>CORD-OPC leads all <span data-academic-count>six</span> evaluated academic baselines in all three metrics.*</p>
+        </div>
+        <div class="highlights-grid">
+          <article class="highlight">
+            <h3 class="highlight-stat highlight-word"><span>Lowest</span> <span>EPE</span></h3>
+            <p class="highlight-label">Mean absolute edge placement error</p>
+          </article>
+          <article class="highlight">
+            <h3 class="highlight-stat highlight-word"><span>Lowest</span> <span>TAT</span></h3>
+            <p class="highlight-label">Primary computation time</p>
+          </article>
+          <article class="highlight">
+            <h3 class="highlight-stat highlight-word"><span>Highest</span> <span>mIoU</span></h3>
+            <p class="highlight-label">Nominal mean intersection over union</p>
+          </article>
+        </div>
+        <p class="highlights-caveat">* 30 µm TAT is estimated. Academic baselines only; commercial reference excluded.</p>
+        <details class="highlights-details">
+          <summary>View values and baseline comparisons <span class="highlights-expand" aria-hidden="true">+</span></summary>
+          <div class="highlights-details-body">
+            <div class="highlights-grid highlights-evidence">
+              <div class="highlight">
+                <h3>Mean |EPE| · Lower is better</h3>
+                <dl class="highlight-values" id="highlight-epe-values" aria-label="Mean absolute EPE rankings across layout sizes"></dl>
+              </div>
+              <div class="highlight">
+                <h3>TAT · Lower is better</h3>
+                <dl class="highlight-values" id="highlight-time-values" aria-label="Primary computation time rankings across layout sizes"></dl>
+              </div>
+              <div class="highlight">
+                <h3>Nominal mIoU · Higher is better</h3>
+                <dl class="highlight-values" id="highlight-iou-values" aria-label="Mean intersection over union rankings across layout sizes"></dl>
+              </div>
+            </div>
+            <div class="highlights-foot">
+              <div class="highlights-notes"><p>Each row shows CORD-OPC and the best academic baseline for that metric and size. TAT covers primary computation; CORD-OPC’s 30 µm TAT is estimated.</p><p>Academic baselines: <span id="highlight-baseline-list">MultiILT, DiffOPC, CardOPC, DROPC, Refragmentation and FuILT</span>. C.T. is a separate commercial reference. Test coverage: 1,000 clips at 2 µm, 10 layouts at 30 µm and one full-chip layout at 150 µm.</p></div>
+              <a href="#benchmarks" class="text-link">Explore all results <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="method" class="section wrap" aria-labelledby="method-title" data-site-section="method">
+      <div class="section-head">
+        <div><p class="kicker">Method</p><h2 id="method-title">How the mask changes</h2></div>
+      </div>
+      <div class="method-grid">
+        <div class="method-list" role="tablist" aria-label="Method steps" aria-orientation="vertical">
+          <button type="button" id="method-tab-init" role="tab" aria-selected="true" aria-controls="method-init" aria-labelledby="method-init-label">
+            <span class="method-step-number" aria-hidden="true">01</span><span id="method-init-label">Build curves and place anchors</span>
+          </button>
+          <button type="button" id="method-tab-optics" role="tab" aria-selected="false" tabindex="-1" aria-controls="method-optics" aria-labelledby="method-optics-label">
+            <span class="method-step-number" aria-hidden="true">02</span><span id="method-optics-label">Optical Coupling</span>
+          </button>
+          <button type="button" id="method-tab-update" role="tab" aria-selected="false" tabindex="-1" aria-controls="method-update" aria-labelledby="method-update-label">
+            <span class="method-step-number" aria-hidden="true">03</span><span id="method-update-label">Predict anchor shifts and rebuild the mask</span>
+          </button>
+        </div>
+        <div class="method-demos">
+          <figure class="method-figure surface" id="method-init" role="tabpanel" aria-labelledby="method-tab-init" tabindex="0">
+            <div class="figure-toolbar"><h3>Curve construction and anchor placement</h3><span class="mono muted">Fig. 3 · Algorithm 1</span></div>
+            <div class="init-controls method-demo-controls">
+              <button type="button" id="method-init-replay">Play steps</button>
+              <label for="method-init-step" class="sr-only">Initialization step</label><input type="range" id="method-init-step" min="0" max="8" value="0" step="1">
+              <output id="method-init-counter" for="method-init-step"></output>
+            </div>
+            <div class="init-display">
+              <svg id="method-init-diagram" viewBox="-16 -172 214 190" role="img" aria-label="The L-shaped example in Fig. 3"></svg>
+              <div class="init-reading">
+                <p class="mono" id="method-init-source"></p>
+                <h4 id="method-init-stage"></h4>
+                <p id="method-init-explanation"></p>
+                <ul id="method-init-key" aria-label="Points in this step"></ul>
+                <ul id="method-init-arc-rules" hidden>
+                  <li>ℓ ≤ 20 nm · no new AP</li><li>20 &lt; ℓ ≤ 40 nm · midpoint</li><li>40 &lt; ℓ ≤ 60 nm · two trisection points</li>
+                </ul>
+              </div>
+            </div>
+            <figcaption class="method-demo-caption"><span id="method-init-operation"></span><span>L-shaped example from Fig. 3</span></figcaption>
+          </figure>
+          <figure class="method-figure surface" id="method-optics" role="tabpanel" aria-labelledby="method-tab-optics" tabindex="0" hidden>
+            <div class="figure-toolbar"><h3>How moving j changes the light at i</h3><span class="mono muted">2 µm case · Nominal optical simulation</span></div>
+            <div class="coupling-body">
+              <p class="coupling-instruction">Drag <strong>j</strong> along the dashed guide to see where the light around fixed point <strong>i</strong> gets darker or brighter.</p>
+              <div class="coupling-results">
+                <div class="coupling-mask-view">
+                  <div class="coupling-plot">
+                    <svg id="method-optical-field" aria-hidden="true">
+                      <path id="coupling-background" fill-rule="evenodd"/>
+                      <path id="coupling-mask" fill-rule="evenodd"/>
+                      <path id="coupling-arc-initial"/>
+                      <path id="coupling-arc"/>
+                      <line id="coupling-guide"/>
+                      <circle id="coupling-source-origin" r="3"/>
+                      <g id="coupling-receiver-point">
+                        <defs><clipPath id="coupling-probe-clip"><circle id="coupling-probe-clip-ring"/></clipPath></defs>
+                        <image id="coupling-probe-image" clip-path="url(#coupling-probe-clip)"/>
+                        <circle id="coupling-probe-border"/>
+                        <path class="coupling-probe-crosshair" d="M-3.5 0h7M0 -3.5v7"/>
+                        <text id="coupling-probe-label" y="3">i · fixed</text>
+                      </g>
+                      <g id="coupling-source-point">
+                        <circle class="coupling-drag-area" r="11"/>
+                        <circle class="coupling-source-core" r="5"/>
+                        <text x="12" y="4">j · drag</text>
+                      </g>
+                    </svg>
+                    <div class="coupling-plot-label"><span>Circle shows change from initial</span><span>205 × 155 nm mask crop</span></div>
+                  </div>
+                  <div class="coupling-controls">
+                    <label for="coupling-shift">Move <i>j</i></label>
+                    <input type="range" id="coupling-shift" min="-8" max="8" step="0.5" value="8">
+                    <span id="coupling-displacement" class="mono"></span>
+                    <button type="button" id="coupling-reset" title="Return to the initial position of j">Reset</button>
+                  </div>
+                </div>
+                <aside class="coupling-reading" aria-label="Light intensity at fixed point i">
+                  <div>
+                    <h4>Light intensity at fixed i</h4>
+                    <p id="coupling-status" class="coupling-status"></p>
+                    <span id="coupling-percent"></span>
+                    <dl class="coupling-values">
+                      <div><dt>Initial</dt><dd id="coupling-before"></dd></div>
+                      <div><dt>Current</dt><dd id="coupling-current"></dd></div>
+                      <div><dt>Change</dt><dd><output id="coupling-value" for="coupling-shift"></output></dd></div>
+                    </dl>
+                  </div>
+                  <div class="coupling-probe-scale">
+                    <h4>Light change around i</h4>
+                    <div class="coupling-intensity-image coupling-delta-image">
+                      <img id="coupling-delta-image" alt="Map of light gained or lost compared with the initial state, centered on i">
+                      <span class="coupling-intensity-crosshair" aria-hidden="true"></span>
+                    </div>
+                    <div class="coupling-probe-ticks"><span>Darker</span><span>No change</span><span>Brighter</span></div>
+                    <div class="coupling-probe-ramp" aria-hidden="true"></div>
+                    <div class="coupling-probe-ticks mono"><span id="coupling-delta-min"></span><span>0</span><span id="coupling-delta-max"></span></div>
+                    <p>Current − initial (a.u.)</p>
+                  </div>
+                </aside>
+              </div>
+              <p class="coupling-caption">Here, moving j closer changes the diffracted light so that it partially cancels the original light field at i. The initial optical coupling matrix guides the Spatial Transformer during training.</p>
+            </div>
+          </figure>
+          <figure class="method-figure surface" id="method-update" role="tabpanel" aria-labelledby="method-tab-update" tabindex="0" hidden>
+            <div class="figure-toolbar"><h3>How the network updates the mask</h3></div>
+            <div class="network-stages seg" role="group" aria-label="Network stages">
+              <button type="button" data-network-stage="geometry" aria-controls="network-geometry" aria-pressed="true">Geometry encoding</button>
+              <button type="button" data-network-stage="spatial" aria-controls="network-spatial" aria-pressed="false">Spatial messages</button>
+              <button type="button" data-network-stage="temporal" aria-controls="network-temporal" aria-pressed="false">Temporal update</button>
+            </div>
+              <section class="network-pane" id="network-geometry" data-network-view="geometry" data-token="ap" aria-labelledby="network-geometry-title">
+              <div class="network-head"><h4 id="network-geometry-title">Build context from points, polygons and layout</h4><span>Architecture schematic</span></div>
+              <div class="network-board">
+                <svg viewBox="0 0 560 273" role="img" aria-label="Anchor-point tokens pool into two polygon tokens. The polygon tokens and a target-layout embedding combine into one layout token.">
+                  <defs><marker id="network-geometry-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z"/></marker></defs>
+                  <g class="network-links" marker-end="url(#network-geometry-arrow)">
+                    <path id="encode-ap-a" d="M70 215C70 182 111 179 140 152"/>
+                    <path id="encode-ap-b" d="M140 215V152"/>
+                    <path id="encode-ap-c" d="M210 215C210 182 169 179 140 152"/>
+                    <path id="encode-ap-d" d="M350 215C350 182 391 179 420 152"/>
+                    <path id="encode-ap-e" d="M420 215V152"/>
+                    <path id="encode-ap-f" d="M490 215C490 182 449 179 420 152"/>
+                    <path id="encode-polygon-a" d="M140 108C140 82 205 81 225 61"/>
+                    <path id="encode-polygon-b" d="M420 108C420 82 345 86 313 61"/>
+                    <path id="encode-target" d="M401 42H357"/>
+                  </g>
+                  <g class="network-pulses">
+                    <use href="#encode-ap-a"/><use href="#encode-ap-b"/><use href="#encode-ap-c"/><use href="#encode-ap-d"/><use href="#encode-ap-e"/><use href="#encode-ap-f"/>
+                    <use class="network-delay-1" href="#encode-polygon-a"/><use class="network-delay-1" href="#encode-polygon-b"/><use class="network-delay-1" href="#encode-target"/>
+                  </g>
+                  <g class="network-token network-layout-token">
+                    <rect x="192" y="23" width="165" height="39" rx="12"/>
+                    <text x="274.5" y="47">Layout token</text>
+                  </g>
+                  <g class="network-block">
+                    <rect x="401" y="23" width="124" height="39" rx="12"/>
+                    <text x="463" y="47">Target embedding</text>
+                  </g>
+                  <g class="network-token network-polygon-token">
+                    <rect x="74" y="110" width="132" height="41" rx="12"/>
+                    <rect x="354" y="110" width="132" height="41" rx="12"/>
+                    <text x="140" y="135">Polygon A</text><text x="420" y="135">Polygon B</text>
+                  </g>
+                  <g class="network-token network-ap-token">
+                    <rect x="39" y="214" width="62" height="36" rx="11"/><rect x="109" y="214" width="62" height="36" rx="11"/><rect x="179" y="214" width="62" height="36" rx="11"/>
+                    <rect x="319" y="214" width="62" height="36" rx="11"/><rect x="389" y="214" width="62" height="36" rx="11"/><rect x="459" y="214" width="62" height="36" rx="11"/>
+                    <text x="70" y="237">AP 1</text><text x="140" y="237">AP 2</text><text x="210" y="237">AP 3</text>
+                    <text x="350" y="237">AP 4</text><text x="420" y="237">AP 5</text><text x="490" y="237">AP 6</text>
+                  </g>
+                  <text class="network-edge-label" x="280" y="187">Attention pooling</text>
+                </svg>
+              </div>
+              <div class="network-actions">
+                <div class="seg" role="group" aria-label="Inspect token levels">
+                  <button type="button" data-token-level="ap" aria-pressed="true">Anchor points</button>
+                  <button type="button" data-token-level="polygon" aria-pressed="false">Polygons</button>
+                  <button type="button" data-token-level="layout" aria-pressed="false">Layout</button>
+                </div>
+                <button class="network-replay" type="button" data-network-replay>Replay flow</button>
+              </div>
+              <p class="network-explainer" id="network-token-note" aria-live="polite">AP tokens encode Fourier features of anchor coordinates and local state attributes.</p>
+            </section>
+            <section class="network-pane" id="network-spatial" data-network-view="spatial" aria-labelledby="network-spatial-title" hidden>
+              <div class="network-head"><h4 id="network-spatial-title">Mix geometric context and pass AP messages</h4><span>Architecture schematic</span></div>
+              <div class="network-board">
+                <svg viewBox="0 0 560 340" role="img" aria-label="AP, polygon, and layout tokens enter joint self-attention. Updated neighbor AP features send signed messages to a receiver, where a gate fuses them with the receiver feature.">
+                  <defs>
+                    <marker id="network-positive-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path class="network-positive-tip" d="M0 0L8 4L0 8Z"/></marker>
+                    <marker id="network-negative-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path class="network-negative-tip" d="M0 0L8 4L0 8Z"/></marker>
+                  </defs>
+                  <g class="network-links" marker-end="url(#network-positive-arrow)">
+                    <path id="spatial-input-ap" d="M100 53V75"/>
+                    <path id="spatial-input-polygon" d="M280 53V75"/>
+                    <path id="spatial-input-layout" d="M460 53V75"/>
+                    <path id="spatial-feature-a" d="M89 116V155"/>
+                    <path id="spatial-feature-b" d="M215 116V155"/>
+                    <path id="spatial-feature-c" d="M341 116V155"/>
+                    <path id="spatial-feature-i" d="M467 116V155"/>
+                    <path id="message-a" class="network-positive" d="M89 194C89 235 157 239 207 270"/>
+                    <path id="message-b" class="network-negative" d="M215 194C215 227 225 245 250 269" marker-end="url(#network-negative-arrow)"/>
+                    <path id="message-c" class="network-positive" d="M341 194C341 226 320 244 308 269"/>
+                    <path id="message-residual" d="M467 194C467 241 410 249 353 273"/>
+                  </g>
+                  <g class="network-pulses">
+                    <use href="#spatial-input-ap"/><use href="#spatial-input-polygon"/><use href="#spatial-input-layout"/>
+                    <use class="network-delay-1" href="#spatial-feature-a"/><use class="network-delay-1" href="#spatial-feature-b"/><use class="network-delay-1" href="#spatial-feature-c"/><use class="network-delay-1" href="#spatial-feature-i"/>
+                    <use class="network-positive network-delay-2" href="#message-a"/><use class="network-negative network-delay-2" href="#message-b"/><use class="network-positive network-delay-2" href="#message-c"/><use class="network-delay-2" href="#message-residual"/>
+                  </g>
+                  <g class="network-token network-ap-token">
+                    <rect x="27" y="17" width="146" height="36" rx="10"/><text x="100" y="40">AP tokens</text>
+                    <rect x="35" y="155" width="108" height="39" rx="11"/><text x="89" y="179">AP j₁</text>
+                    <rect x="161" y="155" width="108" height="39" rx="11"/><text x="215" y="179">AP j₂</text>
+                    <rect x="287" y="155" width="108" height="39" rx="11"/><text x="341" y="179">AP j₃</text>
+                  </g>
+                  <g class="network-token network-polygon-token"><rect x="207" y="17" width="146" height="36" rx="10"/><text x="280" y="40">Polygon tokens</text></g>
+                  <g class="network-token network-layout-token"><rect x="387" y="17" width="146" height="36" rx="10"/><text x="460" y="40">Layout token</text></g>
+                  <g class="network-token network-polygon-token"><rect x="35" y="75" width="486" height="41" rx="12"/><text x="278" y="100">Joint self-attention</text></g>
+                  <g class="network-block"><rect x="413" y="155" width="108" height="39" rx="11"/><text x="467" y="179">Receiver AP i</text></g>
+                  <g class="network-weight">
+                    <text class="network-positive" x="119" y="234">+</text>
+                    <text class="network-negative" x="204" y="234">−</text>
+                    <text class="network-positive" x="350" y="234">+</text>
+                  </g>
+                  <g class="network-token network-layout-token">
+                    <rect x="197" y="270" width="166" height="53" rx="14"/>
+                    <text x="280" y="292">Gated fusion</text>
+                    <text class="network-edge-label" x="280" y="311">Updated AP i</text>
+                  </g>
+                </svg>
+              </div>
+              <div class="network-actions">
+                <div class="network-legend"><span><i></i>Positive weight</span><span><i></i>Negative weight</span></div>
+                <button class="network-replay" type="button" data-network-replay>Replay flow</button>
+              </div>
+              <p class="network-explainer">Joint attention mixes the AP, polygon and layout tokens from geometry encoding. An edge MLP learns signed AP-to-AP weights from features and relative geometry. Gated fusion updates the receiver’s AP feature.</p>
+            </section>
+            <section class="network-pane" id="network-temporal" data-network-view="temporal" aria-labelledby="network-temporal-title" hidden>
+              <div class="network-head"><h4 id="network-temporal-title">Predict the next anchor shift from mask history</h4><span>Architecture schematic</span></div>
+              <div class="network-board">
+                <svg viewBox="0 0 560 146" role="img" aria-label="The same anchor identity in current and past mask states feeds a causal Temporal Transformer, then a decoder predicts the next anchor shift.">
+                  <defs><marker id="network-temporal-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8Z"/></marker></defs>
+                  <g class="network-links" marker-end="url(#network-temporal-arrow)">
+                    <path id="time-a" d="M139 35Q175 35 207 73"/>
+                    <path id="time-b" d="M139 73H207"/>
+                    <path id="time-c" d="M139 111Q175 111 207 73"/>
+                    <path id="time-next" d="M351 73H409"/>
+                  </g>
+                  <g class="network-pulses"><use href="#time-a"/><use href="#time-b"/><use href="#time-c"/><use class="network-delay-1" href="#time-next"/></g>
+                  <g class="network-token network-ap-token">
+                    <rect x="32" y="21" width="107" height="28" rx="9"/><text x="85.5" y="40">AP i · t−2</text>
+                    <rect x="32" y="59" width="107" height="28" rx="9"/><text x="85.5" y="78">AP i · t−1</text>
+                    <rect x="32" y="97" width="107" height="28" rx="9"/><text x="85.5" y="116">AP i · t</text>
+                  </g>
+                  <g class="network-token network-polygon-token">
+                    <rect x="207" y="49" width="144" height="48" rx="12"/>
+                    <text x="279" y="68">Temporal</text><text x="279" y="86">Transformer</text>
+                  </g>
+                  <text class="network-edge-label" x="279" y="117">Causal attention</text>
+                  <g class="network-token network-layout-token">
+                    <rect x="409" y="49" width="119" height="48" rx="12"/><text x="468.5" y="70">Next AP shift</text><text class="network-edge-label" x="468.5" y="87">Decoder output</text>
+                  </g>
+                </svg>
+              </div>
+              <p class="network-explainer">Persistent AP IDs align the history. The decoder combines the latest temporal feature with target-layout features to predict a displacement, then the curves are rebuilt from the updated anchors.</p>
+              <div class="network-head network-archive-head"><h4>Mask updates in the archived example</h4><span>Fig. 5 · H100 archive</span></div>
+              <div class="method-canvas-wrap"><canvas id="method-update-canvas" role="img" aria-label="Recent and current Bézier mask contours with current anchor displacements"></canvas></div>
+              <div class="method-demo-controls">
+                <button type="button" id="method-update-replay">Replay updates</button>
+                <label for="method-update-time">Iteration</label><input type="range" id="method-update-time" min="0" value="0" step="1">
+              </div>
+              <p class="method-demo-caption"><span id="method-update-stage"></span><span>Faint · recent masks / Blue · current mask / Arrows · anchor motion</span></p>
+            </section>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="rollout" class="section section-tinted" aria-labelledby="rollout-title" data-site-section="rollout">
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">2 <span class="unit">µm</span> case · Fig. 5 region</p><h2 id="rollout-title">Replay each mask correction</h2></div>
+          <p>Step through 16 corrections and see how local anchor motion changes the mask and the simulated resist.</p>
+        </div>
+        <div class="replay surface">
+          <div class="replay-controls">
+            <div class="transport"><button type="button" id="play" class="button primary">▶ Play</button><button type="button" id="prev" class="icon" aria-label="Previous iteration">←</button><button type="button" id="next" class="icon" aria-label="Next iteration">→</button></div>
+            <div class="scrubber">
+              <div><label for="iteration">Iteration</label><output id="iteration-text" for="iteration" class="mono"></output></div>
+              <input id="iteration" type="range" min="0" max="16" value="1" step="1">
+              <div class="ticks mono" aria-hidden="true"><span>00</span><span>04</span><span>08</span><span>12</span><span>16</span></div>
+            </div>
+          </div>
+          <div class="replay-grid">
+            <div class="replay-geometry">
+              <div class="figure-toolbar"><h3>Mask and simulated resist</h3><div class="seg" role="group" aria-label="Layout view"><button type="button" data-view="roi" aria-pressed="true">Crop</button><button type="button" data-view="full" aria-pressed="false">Full window</button></div></div>
+              <div class="plot-frame"><span class="plot-label mono" id="replay-dimension">350 × 350 nm</span><canvas id="replay-canvas" aria-label="Layout, mask and simulated resist. Turn on EPE sites to see the measurement locations."></canvas></div>
+              <div class="layer-controls" role="group" aria-label="Layers">
+                <label class="toggle"><input type="checkbox" data-layer="target" checked> Target</label>
+                <label class="toggle"><input type="checkbox" data-layer="mask" checked> Bézier mask</label>
+                <label class="toggle"><input type="checkbox" data-layer="resist" checked> Simulated resist</label>
+                <label class="toggle"><input type="checkbox" data-layer="ap" checked> AP motion</label>
+                <label class="toggle"><input type="checkbox" data-layer="sraf"> SRAF</label>
+                <label class="toggle"><input type="checkbox" data-layer="previous"> Previous mask</label>
+                <label class="toggle"><input type="checkbox" data-layer="epe"> EPE sites</label>
+              </div>
+              <div class="probe probe-legend" id="epe-probe" hidden><span><i class="epe-key negative"></i>Negative EPE</span><span><i class="epe-key positive"></i>Positive EPE</span><span><i class="epe-key exception"></i>Search exception</span></div>
+            </div>
+            <aside class="replay-side">
+              <div class="replay-readout">
+                <div class="figure-toolbar"><h3>Mean |EPE| by iteration</h3></div>
+                <section class="epe-panel" aria-labelledby="epe-full-title">
+                  <div class="epe-panel-head"><h4 id="epe-full-title">Full window <small>2 × 2 µm</small></h4><output id="epe-full-mean" for="iteration" aria-label="Full window mean absolute EPE"></output></div>
+                  <canvas class="epe-chart" id="epe-full-chart" aria-label="Full window mean absolute EPE in nm versus iteration. Click the chart to select an iteration."></canvas>
+                  <p class="metrics-foot" id="epe-full-count"></p>
+                </section>
+                <section class="epe-panel" aria-labelledby="epe-roi-title">
+                  <div class="epe-panel-head"><h4 id="epe-roi-title">Crop <small>350 × 350 nm</small></h4><output id="epe-roi-mean" for="iteration" aria-label="Crop mean absolute EPE"></output></div>
+                  <canvas class="epe-chart" id="epe-roi-chart" aria-label="Crop mean absolute EPE in nm versus iteration. Click the chart to select an iteration."></canvas>
+                  <p class="metrics-foot" id="epe-roi-count"></p>
+                </section>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="layouts" class="section section-tinted comparison-workspace" aria-labelledby="layouts-title" data-site-section="layouts">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="layouts-title">Resist comparisons at three scales</h2>
+        </div>
+        <div class="seg comparison-tabs" role="tablist" aria-label="Resist comparison view">
+          <button type="button" id="comparison-tab-overview" role="tab" aria-controls="comparison-overview" aria-selected="true">Overview</button>
+          <button type="button" id="comparison-tab-2" role="tab" aria-controls="comparison-2" aria-selected="false" tabindex="-1">2 µm</button>
+          <button type="button" id="comparison-tab-30" role="tab" aria-controls="comparison-30" aria-selected="false" tabindex="-1">30 µm</button>
+          <button type="button" id="comparison-tab-150" role="tab" aria-controls="comparison-150" aria-selected="false" tabindex="-1">150 µm</button>
+        </div>
+        <div class="layout-gallery" id="comparison-overview" role="tabpanel" aria-labelledby="comparison-tab-overview">
+          <article class="layout-gallery-card surface">
+            <header><h3>2 µm</h3><span class="layout-gallery-context">Row 30 · Col 131</span></header>
+            <div class="layout-gallery-map">
+              <img src="assets/layout-overviews/2um.svg" width="400" height="400" alt="Full target layout of the 2 µm clip">
+            </div>
+            <a class="text-link layout-gallery-link" href="#layouts-2" aria-label="Open the 2 µm viewer">Open viewer →</a>
+          </article>
+          <article class="layout-gallery-card surface">
+            <header><h3>30 µm</h3><span class="layout-gallery-context">AES · 70070-111115</span></header>
+            <div class="layout-gallery-map">
+              <img src="assets/layout-overviews/30um.svg" width="400" height="400" alt="Full target layout of the 30 µm AES block">
+            </div>
+            <a class="text-link layout-gallery-link" href="#layouts-30" aria-label="Open the 30 µm viewer">Open viewer →</a>
+          </article>
+          <article class="layout-gallery-card surface">
+            <header><h3>150 µm</h3><span class="layout-gallery-context">Full-chip target</span></header>
+            <div class="layout-gallery-map">
+              <img src="assets/layout-overviews/150um.webp" width="1000" height="1000" alt="Complete target layout of the 150 µm chip">
+            </div>
+            <a class="text-link layout-gallery-link" href="#layouts-150" aria-label="Open the 150 µm viewer">Open viewer →</a>
+          </article>
+        </div>
+        <div id="comparison-2" role="tabpanel" aria-labelledby="comparison-tab-2" hidden></div>
+        <div id="comparison-30" role="tabpanel" aria-labelledby="comparison-tab-30" hidden></div>
+        <div id="comparison-150" role="tabpanel" aria-labelledby="comparison-tab-150" hidden></div>
+      </div>
+    </section>
+
+    <section id="benchmarks" class="section wrap" aria-labelledby="bench-title" data-site-section="benchmarks">
+      <div class="section-head">
+        <h2 id="bench-title">Results</h2>
+      </div>
+      <div class="seg results-tabs" role="tablist" aria-label="Results views">
+        <button type="button" role="tab" id="results-tab-overall" aria-selected="true" aria-controls="results-overall">Overall metrics</button>
+        <button type="button" role="tab" id="results-tab-matched" aria-selected="false" aria-controls="results-matched" tabindex="-1">Per-layout comparisons</button>
+      </div>
+      <p class="results-load-status" id="results-load-status" role="status" hidden></p>
+      <div id="results-overall" role="tabpanel" aria-labelledby="results-tab-overall">
+        <div class="bench surface">
+          <div class="bench-chart-toolbar"><div class="seg" role="group" aria-label="Benchmark metric"><button type="button" data-bench-metric="1" aria-pressed="true">Mean EPE</button><button type="button" data-bench-metric="0" aria-pressed="false">mIoU</button><button type="button" data-bench-metric="2" aria-pressed="false">PVB</button><button type="button" data-bench-metric="3" aria-pressed="false">TAT</button></div><span id="bench-direction" class="mono muted"></span></div>
+          <div id="benchmark-chart" class="benchmark-chart" role="group" aria-label="Benchmark charts by layout size"></div>
+          <p class="section-note bench-note">C.T. is the commercial reference. TAT covers primary computation and excludes initialization, SRAF insertion, export and final evaluation. * CORD-OPC’s 30 µm TAT is estimated.</p>
+        </div>
+      </div>
+      <div id="results-matched" role="tabpanel" aria-labelledby="results-tab-matched" hidden>
+        <p class="results-panel-note" id="paired-plot-guide">Each point is one matched layout, ordered from largest improvement. Above zero favors CORD-OPC. Select a point to see both methods' values.</p>
+        <section class="surface paired-card" data-results-content hidden aria-label="Matched layout measurements">
+          <div class="paired-controls">
+            <div class="seg" role="group" aria-label="Layout size">
+              <button type="button" data-result-size="2" aria-pressed="true">2 µm</button>
+              <button type="button" data-result-size="30" aria-pressed="false">30 µm</button>
+            </div>
+            <label class="paired-baseline">Baseline <select id="paired-baseline"></select></label>
+            <div class="seg" role="group" aria-label="Metric">
+              <button type="button" data-result-metric="1" aria-pressed="true">Mean |EPE|</button>
+              <button type="button" data-result-metric="0" aria-pressed="false">IoU</button>
+              <button type="button" data-result-metric="2" aria-pressed="false">PVB</button>
+            </div>
+          </div>
+          <div class="paired-grid">
+            <figure class="paired-figure">
+              <canvas id="paired-plot" tabindex="0" role="img" aria-label="Improvement by layout. Use arrow keys to select a layout." aria-describedby="paired-plot-guide"></canvas>
+              <figcaption class="paired-key">
+                <span><i class="parity-line" aria-hidden="true"></i>Equal value</span>
+                <span><i class="paired-dot positive" aria-hidden="true"></i>CORD-OPC better</span>
+                <span><i class="paired-dot negative" aria-hidden="true"></i>Baseline better</span>
+              </figcaption>
+            </figure>
+            <aside class="paired-aside">
+              <dl class="paired-summary">
+                <div><dt>Matched layouts</dt><dd id="paired-count"></dd></div>
+                <div><dt>Layouts improved</dt><dd id="paired-wins"></dd></div>
+                <div><dt id="paired-median-name">Median change</dt><dd id="paired-median"></dd></div>
+              </dl>
+              <div class="paired-reading" id="paired-reading">
+                <div class="paired-reading-head"><h2 id="paired-case-title">Case readings</h2><output id="paired-pinned" class="mono" hidden>Pinned</output></div>
+                <p id="paired-empty">Hover or select a point to read both values. Click to pin it.</p>
+                <div id="paired-details" hidden>
+                  <p id="paired-case-difference" class="paired-case-difference"></p>
+                  <table aria-label="Selected case measurements">
+                    <thead><tr><th scope="col">Metric</th><th scope="col" id="paired-detail-baseline"></th><th scope="col">CORD-OPC</th></tr></thead>
+                    <tbody id="paired-values"></tbody>
+                  </table>
+                  <p class="paired-case-id mono" id="paired-case-id"></p>
+                </div>
+              </div>
+              <p class="section-note">Pairs use the same archived target, optical model and checker settings. Mean |EPE| uses each resist contour’s valid evaluation sites.</p>
+              <p class="section-note" id="paired-coverage"></p>
+            </aside>
+          </div>
+        </section>
+        <details id="process-band" class="process-section" data-results-content hidden>
+          <summary>What does PVB measure? <span>2 µm example</span></summary>
+          <p class="results-panel-note">The selected resist contour uses one focus and dose. The PV band shows where coverage varies across all nine conditions.</p>
+          <p class="results-load-status" id="process-load-status" role="status" hidden></p>
+          <div class="surface process-card" id="process-card" hidden>
+            <div class="figure-toolbar">
+              <h3>Same 2 × 2 µm layout</h3>
+              <div class="process-tools">
+                <div class="paired-baseline"><label for="process-baseline">Compare with</label><select id="process-baseline"></select></div>
+                <div class="seg" role="group" aria-label="Process display">
+                  <button type="button" data-process-view="print" aria-pressed="true">Selected resist</button>
+                  <button type="button" data-process-view="band" aria-pressed="false">PV band (all 9)</button>
+                </div>
+              </div>
+            </div>
+            <div class="process-condition-controls" id="process-condition-controls" hidden>
+              <div class="process-condition"><span>Focus</span><div class="seg" id="process-focus" role="group" aria-label="Focus"></div></div>
+              <div class="process-condition"><span>Dose</span><div class="seg" id="process-dose" role="group" aria-label="Dose"></div></div>
+            </div>
+            <div class="process-reading">
+              <p class="process-note mono" id="process-conditions" aria-live="polite"></p>
+              <div class="process-tools" id="process-change-key" hidden>
+                <span><i class="process-key lost" aria-hidden="true"></i> Coverage lost from nominal</span>
+                <span><i class="process-key gained" aria-hidden="true"></i> Coverage gained from nominal</span>
+              </div>
+            </div>
+            <div class="process-grid">
+              <figure class="process-panel" data-process-method="baseline">
+                <figcaption><strong>FuILT</strong><span class="mono"></span></figcaption>
+                <svg role="img"><path class="process-resist" fill-rule="evenodd"/><path class="process-band" fill-rule="evenodd"/><path class="process-lost" fill-rule="evenodd"/><path class="process-gained" fill-rule="evenodd"/><path class="process-target"/></svg>
+              </figure>
+              <figure class="process-panel" data-process-method="CORD-OPC">
+                <figcaption><strong>CORD-OPC</strong><span class="mono"></span></figcaption>
+                <svg role="img"><path class="process-resist" fill-rule="evenodd"/><path class="process-band" fill-rule="evenodd"/><path class="process-lost" fill-rule="evenodd"/><path class="process-gained" fill-rule="evenodd"/><path class="process-target"/></svg>
+              </figure>
+            </div>
+            <p class="process-note" id="process-note"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><div class="wrap"><span>CORD-OPC</span><span>Interactive research demonstration</span><a href="#home">Back to home</a></div></footer>
+</body>
+</html>

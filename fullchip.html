@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Full-chip viewer · CORD-OPC</title>
+  <meta name="description" content="Inspect the target and simulated resist across the 150 micrometre CORD-OPC layout.">
+  <link rel="stylesheet" href="style.css?v=results-highlights">
+  <script src="viewer-embed.js?v=fit-comparison-scroll"></script>
+  <script defer src="assets/fullchip/layout.js"></script>
+  <script defer src="assets/fullchip/examples.js"></script>
+  <script defer src="assets/fullchip/iou-grid.js"></script>
+  <script defer src="chip-iou-map.js?v=chip-guide"></script>
+  <script defer src="chip-overview.js?v=representative-cases"></script>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="wrap topbar-content">
+      <a class="wordmark" aria-label="CORD-OPC" href="index.html"><span class="mark" aria-hidden="true"></span>CORD<span class="wordmark-suffix">-OPC</span></a>
+      <nav aria-label="Sections">
+        <a href="index.html#home">Home</a><a href="index.html#highlights">Highlights</a><a href="index.html#method">Method</a><a href="index.html#rollout">Mask correction replay</a><a href="index.html#layouts" aria-current="location">Resist comparisons</a><a href="index.html#benchmarks">Results</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap fullchip-page">
+    <a class="text-link comparison-return" href="index.html#layouts"><span aria-hidden="true">←</span> All resist comparisons</a>
+    <div class="fullchip-copy">
+      <div>
+        <h1>150 µm full-chip viewer</h1>
+        <p class="hero-lead">Explore full-chip IoU and compare aligned Target, FuILT and CORD-OPC contours.</p>
+      </div>
+      <nav class="seg layout-size-tabs" aria-label="Layout size">
+        <a href="layout-cases.html?size=2">2 µm</a>
+        <a href="layout-cases.html?size=30">30 µm</a>
+        <a href="fullchip.html" aria-current="page">150 µm</a>
+      </nav>
+      <dl class="hero-metrics" aria-label="Full-chip results">
+        <div><dt>Mean absolute EPE</dt><dd>4.332 <span>nm</span></dd></div>
+        <div><dt>Full-chip IoU</dt><dd>92.17<span>%</span></dd></div>
+        <div><dt>Correction iterations</dt><dd>16</dd></div>
+      </dl>
+    </div>
+    <figure class="chip-figure surface">
+      <div class="chip-map">
+        <div class="figure-toolbar">
+          <div class="figure-title" id="chip-map-title">150 × 150 µm layout</div>
+          <div class="seg" id="chip-layer-controls" role="group" aria-label="Full-chip layer">
+            <button type="button" data-chip-layer="resist" aria-pressed="true">Resist</button>
+            <button type="button" data-chip-layer="target" aria-pressed="false">Target</button>
+            <button type="button" data-chip-layer="difference" aria-pressed="false">Difference</button>
+          </div>
+        </div>
+        <div class="chip-tools" id="chip-tools">
+          <div class="zoom-controls" role="group" aria-label="Zoom controls">
+            <button class="icon" id="chip-zoom-out" type="button" aria-label="Zoom out">−</button>
+            <button class="icon" id="chip-zoom-in" type="button" aria-label="Zoom in">+</button>
+            <button class="icon fit" id="chip-reset" type="button">Show full layout</button>
+            <label class="chip-zoom-input"><input id="chip-zoom" type="number" min="1" max="100" step="any" value="1" aria-label="Zoom level, 1 to 100 times"><span aria-hidden="true">×</span></label>
+          </div>
+        </div>
+        <p class="chip-view-guide chip-iou-instruction" id="chip-iou-instruction" hidden>Select a colored square to zoom in and compare Target, FuILT and CORD-OPC. Hover to see both IoU values.</p>
+        <p class="chip-view-guide" id="chip-field-location" hidden>The dashed box marks the region covered by Local grid.</p>
+        <div class="chip-frame" id="chip-frame" tabindex="0" aria-label="Full-chip viewer. Use plus and minus to zoom, arrow keys to pan, and zero to reset.">
+          <canvas id="chip-canvas" role="img" aria-label="CORD-OPC simulated resist"></canvas>
+          <svg class="chip-iou-cells" id="chip-iou-cells" aria-hidden="true" hidden></svg>
+          <div class="chip-iou-tooltip" id="chip-iou-tooltip" aria-hidden="true" hidden></div>
+          <svg class="chip-pin-leaders" id="chip-pin-leaders" aria-hidden="true"></svg>
+          <div id="chip-pins" role="group" aria-label="Resist defect locations on the full chip"></div>
+          <div class="chip-example-bounds" id="chip-example-bounds" aria-hidden="true" hidden></div>
+          <div class="chip-scale" id="chip-scale"><i id="chip-scale-bar" aria-hidden="true"></i><span id="chip-scale-text">20 µm</span></div>
+        </div>
+        <div class="chip-caption">
+          <ul class="chip-legend" id="chip-legend" aria-label="Difference legend" hidden>
+            <li><i class="chip-swatch overlap" aria-hidden="true"></i>Overlap</li>
+            <li><i class="chip-swatch missing" aria-hidden="true"></i>Missing resist</li>
+            <li><i class="chip-swatch extra" aria-hidden="true"></i>Extra resist</li>
+          </ul>
+          <span id="chip-layer-caption">CORD-OPC simulated resist</span>
+          <span class="chip-detail mono" id="chip-detail" role="status">Loading overview…</span>
+          <span id="chip-iou-caption" hidden>5 × 5 µm cells · origin at lower left</span>
+        </div>
+      </div>
+      <div class="chip-inspection">
+        <div class="figure-toolbar">
+          <h2 class="figure-title">Resist comparison</h2>
+        </div>
+        <div class="chip-source-options" role="group" aria-label="How to explore the full chip">
+          <button type="button" data-chip-source="examples" aria-pressed="true" aria-labelledby="chip-source-examples" aria-describedby="chip-source-examples-description" aria-controls="chip-examples">
+            <strong id="chip-source-examples">Resist defects</strong><span id="chip-source-examples-description">Compare line breaks and bridges</span>
+          </button>
+          <button type="button" data-chip-source="iou" aria-pressed="false" aria-labelledby="chip-source-iou" aria-describedby="chip-source-iou-description" aria-controls="chip-iou-cells chip-iou-panel">
+            <strong id="chip-source-iou">Whole-chip map</strong><span id="chip-source-iou-description">Pick any 5 × 5 µm square</span>
+          </button>
+          <button type="button" data-chip-source="field" aria-pressed="false" aria-labelledby="chip-source-field" aria-describedby="chip-source-field-description" aria-controls="chip-field">
+            <strong id="chip-source-field">Local grid</strong><span id="chip-source-field-description">Compare 2 × 2 µm squares in one region</span>
+          </button>
+        </div>
+        <div class="chip-examples" id="chip-examples">
+          <p class="chip-view-guide">Pick a number here or on the layout to compare the target and both resist contours at a selected location.</p>
+          <ul id="chip-example-list" aria-label="Resist defect cases"></ul>
+        </div>
+        <span class="sr-only" id="chip-example-status" aria-live="polite"></span>
+        <div class="chip-iou-panel" id="chip-iou-panel" hidden>
+          <div class="chip-iou-heading">
+            <h3>IoU change vs FuILT <span class="mono muted" title="Percentage points">(pp)</span></h3>
+            <button class="icon fit" id="chip-iou-back" type="button" hidden>Back to whole-chip map</button>
+          </div>
+          <div id="chip-iou-legend">
+            <p class="chip-view-guide">IoU measures how closely the simulated resist overlaps the target. <span id="chip-iou-shading"></span></p>
+            <div class="chip-iou-ramp" id="chip-iou-ramp" aria-hidden="true"></div>
+            <div class="chip-iou-ticks mono" id="chip-iou-ticks"></div>
+            <p class="chip-iou-summary" id="chip-iou-summary"></p>
+            <div class="chip-view-actions">
+              <button type="button" class="chip-compare-start" id="chip-iou-start">Compare largest gain</button>
+              <a class="text-link" href="#chip-map-title">Go to map ↑</a>
+            </div>
+          </div>
+          <div class="chip-iou-readout" id="chip-iou-readout" hidden>
+            <div class="chip-iou-cell-meta">
+              <strong id="chip-iou-cell-name"></strong>
+              <span class="mono muted" id="chip-iou-cell-position"></span>
+            </div>
+            <dl>
+              <div><dt>FuILT IoU</dt><dd id="chip-iou-fuilt">—</dd></div>
+              <div><dt>CORD-OPC IoU</dt><dd id="chip-iou-proteus">—</dd></div>
+              <div><dt>ΔIoU</dt><dd id="chip-iou-delta" title="CORD-OPC minus FuILT, using the unrounded IoU values.">—</dd></div>
+            </dl>
+          </div>
+          <p class="chip-iou-status muted" id="chip-iou-status" role="status"></p>
+        </div>
+        <div class="chip-field" id="chip-field" hidden>
+          <p class="chip-view-guide">Select a square below to zoom in and compare Target, FuILT and CORD-OPC at that spot.</p>
+          <p class="field-caption"><span>12 × 12 µm region</span><span id="chip-field-coordinates"></span></p>
+          <div class="field-frame" id="chip-field-frame">
+            <svg viewBox="0 0 12000 12000" role="img" aria-label="Target contours of the 12 micrometre field"><path fill="#648297" fill-rule="evenodd"/></svg>
+            <div class="tile-buttons" role="group" aria-label="2 micrometre tiles" id="chip-field-tiles"></div>
+          </div>
+          <div class="tile-legend" id="chip-field-legend" hidden><span>IoU gain vs FuILT</span><div class="tile-ramp" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><span id="tile-legend-range"></span></div>
+          <p class="chip-field-status muted" id="chip-field-status" role="status">Loading field…</p>
+          <button type="button" class="chip-compare-start" id="chip-field-start" hidden>Compare largest gain</button>
+        </div>
+        <section class="chip-example-compare" id="chip-example-compare" aria-labelledby="chip-example-title" tabindex="-1" hidden>
+          <div class="figure-toolbar">
+            <h2 class="figure-title" id="chip-example-title"></h2>
+            <div class="chip-crop-meta mono muted">
+              <span id="chip-crop-size"></span>
+              <span id="chip-crop-coordinates"></span>
+            </div>
+          </div>
+          <a class="chip-back-to-map text-link" href="#chip-map-title">Back to map ↑</a>
+          <div class="crop-grid">
+            <div class="crop" data-example-method="target">
+              <h3>Target</h3><p class="crop-outcome"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="example-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot">Reference geometry</p>
+            </div>
+            <div class="crop" data-example-method="fuilt">
+              <h3>FuILT</h3><p class="crop-outcome defect"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="example-outline"/><path class="example-missing" fill-rule="evenodd"/><path class="example-extra" fill-rule="evenodd"/><path class="example-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot"></p>
+            </div>
+            <div class="crop" data-example-method="proteus">
+              <h3>CORD-OPC</h3><p class="crop-outcome preserved"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="example-outline"/><path class="example-missing" fill-rule="evenodd"/><path class="example-extra" fill-rule="evenodd"/><path class="example-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot"></p>
+            </div>
+          </div>
+          <div class="comparison-legend">
+            <div class="seg" role="group" aria-label="Crop display">
+              <button type="button" data-crop-display="contours" aria-pressed="true">Contours</button>
+              <button type="button" data-crop-display="difference" aria-pressed="false">Difference</button>
+            </div>
+            <label class="toggle" id="chip-outline-toggle"><input type="checkbox" id="chip-outline"> Target outline</label>
+            <div id="chip-crop-legend" hidden><span><i class="error-key missed"></i>Missing resist</span><span><i class="error-key extra"></i>Extra resist</span></div>
+          </div>
+        </section>
+      </div>
+      <figcaption class="sr-only">Full-chip map with matched resist comparisons.</figcaption>
+    </figure>
+  </main>
+</body>
+</html>

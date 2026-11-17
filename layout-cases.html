@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Layout cases · CORD-OPC</title>
+  <link rel="stylesheet" href="style.css?v=results-highlights">
+  <script src="viewer-embed.js?v=fit-comparison-scroll"></script>
+  <script defer src="assets/layout-cases.js?v=resist-wording"></script>
+  <script defer src="layout-cases.js?v=representative-cases"></script>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="wrap topbar-content">
+      <a class="wordmark" aria-label="CORD-OPC" href="index.html"><span class="mark" aria-hidden="true"></span>CORD<span class="wordmark-suffix">-OPC</span></a>
+      <nav aria-label="Sections">
+        <a href="index.html#home">Home</a><a href="index.html#highlights">Highlights</a><a href="index.html#method">Method</a><a href="index.html#rollout">Mask correction replay</a><a href="index.html#layouts" aria-current="location">Resist comparisons</a><a href="index.html#benchmarks">Results</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap fullchip-page">
+    <a class="text-link comparison-return" href="index.html#layouts"><span aria-hidden="true">←</span> All resist comparisons</a>
+    <div class="fullchip-copy">
+      <div>
+        <h1 id="layout-page-title">Layout cases</h1>
+        <p class="hero-lead">Select a marker to compare masks and simulated resist contours in the same target region.</p>
+      </div>
+      <nav class="seg layout-size-tabs" aria-label="Layout size">
+        <a href="layout-cases.html?size=2" data-layout-size="2">2 µm</a>
+        <a href="layout-cases.html?size=30" data-layout-size="30">30 µm</a>
+        <a href="fullchip.html">150 µm</a>
+      </nav>
+    </div>
+    <figure class="chip-figure surface">
+      <div class="chip-map">
+        <div class="figure-toolbar">
+          <h2 class="figure-title" id="layout-map-title">Target layout</h2>
+          <div class="layout-picker"><label for="layout-picker">Layout</label><select id="layout-picker"></select></div>
+        </div>
+        <div class="chip-tools">
+          <button class="icon fit layout-fit" id="layout-fit" type="button" disabled>Show full layout</button>
+          <span class="mono muted" id="layout-map-extent"></span>
+        </div>
+        <div class="chip-frame layout-map-frame" id="layout-map-frame">
+          <svg id="layout-map" role="img" aria-label="Target overview">
+            <path class="layout-map-target" fill-rule="evenodd"/>
+            <rect class="layout-map-crop" id="layout-map-crop" hidden/>
+          </svg>
+          <div id="layout-map-pins" role="group" aria-label="Comparison locations"></div>
+          <div class="chip-scale"><i id="layout-scale-bar" aria-hidden="true"></i><span id="layout-scale-text"></span></div>
+        </div>
+        <div class="chip-caption"><span id="layout-map-caption"></span></div>
+      </div>
+      <div class="chip-inspection">
+        <div class="figure-toolbar"><h2 class="figure-title">Layout comparison</h2></div>
+        <p class="layout-comparison-hint" id="layout-comparison-hint">Select a marker on the layout to open its comparison.</p>
+        <section class="chip-example-compare layout-case-comparison" id="layout-comparison" aria-labelledby="layout-comparison-title" tabindex="-1" hidden>
+          <div class="figure-toolbar">
+            <h2 class="figure-title" id="layout-comparison-title"></h2>
+            <div class="chip-crop-meta mono muted" id="layout-crop-meta"></div>
+          </div>
+          <a class="chip-back-to-map text-link" href="#layout-map-title">Back to map ↑</a>
+          <div class="layout-comparison-controls">
+            <div class="seg" role="group" aria-label="Geometry view">
+              <button type="button" data-layout-view="print" aria-pressed="true">Simulated resist</button>
+              <button type="button" data-layout-view="mask" aria-pressed="false">Mask</button>
+            </div>
+            <div class="layout-picker" id="layout-baseline-control"><label for="layout-baseline-picker">Baseline</label><select id="layout-baseline-picker"></select></div>
+          </div>
+          <div class="crop-grid">
+            <div class="crop" data-example-method="target">
+              <h3>Target</h3><p class="crop-outcome"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="layout-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot">Reference geometry</p>
+            </div>
+            <div class="crop" data-example-method="baseline">
+              <h3>Baseline <small id="layout-baseline"></small></h3><p class="crop-outcome defect"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="layout-sraf" fill-rule="evenodd"/><path class="example-outline" aria-hidden="true"/><path class="layout-width-marker" fill-rule="evenodd" aria-hidden="true"/><path class="layout-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot"></p>
+            </div>
+            <div class="crop" data-example-method="proteus">
+              <h3>CORD-OPC</h3><p class="crop-outcome preserved"></p>
+              <svg role="img"><path class="example-shape" fill-rule="evenodd"/><path class="layout-sraf" fill-rule="evenodd"/><path class="example-outline" aria-hidden="true"/><path class="layout-width-marker" fill-rule="evenodd" aria-hidden="true"/><path class="layout-guide" aria-hidden="true"/></svg>
+              <p class="crop-foot"></p>
+            </div>
+          </div>
+          <div class="comparison-legend">
+            <label class="toggle"><input id="layout-outline" type="checkbox"> Target outline</label>
+            <label class="toggle" id="layout-guide-control"><input id="layout-guide" type="checkbox" checked> Feature guide</label>
+            <label class="toggle" id="layout-sraf-control" hidden><input id="layout-sraf" type="checkbox" checked><i class="layout-sraf-key" aria-hidden="true"></i>SRAF</label>
+          </div>
+          <p class="layout-comparison-note" id="layout-comparison-note" aria-live="polite"></p>
+        </section>
+      </div>
+      <figcaption class="sr-only">Archived layouts with matched local mask and simulated resist comparisons.</figcaption>
+    </figure>
+  </main>
+</body>
+</html>
