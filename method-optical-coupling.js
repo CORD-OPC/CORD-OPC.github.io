@@ -78,6 +78,8 @@
   const [x1, y1] = sourcePosition(minimum - 4);
   const [x2, y2] = sourcePosition(maximum + 4);
   for (const [name, value] of Object.entries({x1, y1, x2, y2})) guide.setAttribute(name, value);
+  source.querySelector('.coupling-source-arrows').setAttribute('transform',
+    `rotate(${Math.atan2(direction[1], direction[0]) * 180 / Math.PI - 90})`);
   $('coupling-before').textContent = `${baseline.intensity.toFixed(5)} a.u.`;
   range.min = minimum;
   range.max = maximum;

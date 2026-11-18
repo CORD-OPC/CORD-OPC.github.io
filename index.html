@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>CORD-OPC · Curvilinear optical proximity correction</title>
   <meta name="description" content="Explore full-chip resist contour comparisons and replay CORD-OPC mask corrections one iteration at a time.">
-  <link rel="stylesheet" href="style.css?v=highlights-metric-headlines">
+  <link rel="stylesheet" href="style.css?v=coupling-drag-guide">
   <link rel="stylesheet" href="method-network.css?v=joint-attention">
   <link rel="stylesheet" href="matched-results.css?v=soft-surfaces">
   <script defer src="assets/rollout-data.js?v=epe-panel"></script>
@@ -17,7 +17,7 @@
   <script defer src="assets/method/init-geometry.js"></script>
   <script defer src="method-initialization.js?v=fig3-method"></script>
   <script defer src="assets/method/intensity-sweep.js?v=intensity-map"></script>
-  <script defer src="method-optical-coupling.js?v=intensity-map"></script>
+  <script defer src="method-optical-coupling.js?v=drag-guide"></script>
   <script defer src="replay.js?v=vertical-preview"></script>
   <script defer src="home-comparison.js?v=mask-resist-loop"></script>
   <script defer src="results-tabs.js?v=matched-baselines"></script>
@@ -171,7 +171,7 @@
           <figure class="method-figure surface" id="method-optics" role="tabpanel" aria-labelledby="method-tab-optics" tabindex="0" hidden>
             <div class="figure-toolbar"><h3>How moving j changes the light at i</h3><span class="mono muted">2 µm case · Nominal optical simulation</span></div>
             <div class="coupling-body">
-              <p class="coupling-instruction">Drag <strong>j</strong> along the dashed guide to see where the light around fixed point <strong>i</strong> gets darker or brighter.</p>
+              <p class="coupling-instruction"><strong>Move j. Watch the light at i change.</strong> Drag the green point, or use the slider below.</p>
               <div class="coupling-results">
                 <div class="coupling-mask-view">
                   <div class="coupling-plot">
@@ -190,18 +190,29 @@
                         <text id="coupling-probe-label" y="3">i · fixed</text>
                       </g>
                       <g id="coupling-source-point">
-                        <circle class="coupling-drag-area" r="11"/>
+                        <circle class="coupling-drag-area" r="16"/>
+                        <circle class="coupling-source-halo" r="9"/>
+                        <path class="coupling-source-arrows" d="M-3 -12L0 -15L3 -12M-3 12L0 15L3 12"/>
                         <circle class="coupling-source-core" r="5"/>
-                        <text x="12" y="4">j · drag</text>
+                        <text x="13" y="4">Drag j</text>
                       </g>
                     </svg>
                     <div class="coupling-plot-label"><span>Circle shows change from initial</span><span>205 × 155 nm mask crop</span></div>
                   </div>
                   <div class="coupling-controls">
-                    <label for="coupling-shift">Move <i>j</i></label>
-                    <input type="range" id="coupling-shift" min="-8" max="8" step="0.5" value="8">
-                    <span id="coupling-displacement" class="mono"></span>
-                    <button type="button" id="coupling-reset" title="Return to the initial position of j">Reset</button>
+                    <div class="coupling-control-head">
+                      <label for="coupling-shift"><span aria-hidden="true">↔</span> Drag the handle to move <i>j</i></label>
+                      <span id="coupling-displacement" class="mono"></span>
+                    </div>
+                    <div class="coupling-slider-row">
+                      <span aria-hidden="true">←</span>
+                      <input type="range" id="coupling-shift" min="-8" max="8" step="0.5" value="8" aria-label="Move j" aria-describedby="coupling-slider-help">
+                      <span aria-hidden="true">→</span>
+                    </div>
+                    <div class="coupling-control-foot">
+                      <p id="coupling-slider-help">Drag left or right · See the light at i update.</p>
+                      <button type="button" id="coupling-reset" title="Return to the initial position of j">Reset</button>
+                    </div>
                   </div>
                 </div>
                 <aside class="coupling-reading" aria-label="Light intensity at fixed point i">
